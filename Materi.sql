@@ -44,3 +44,16 @@ order by
 	--first_name DESC;
    	--dengan 2 parameter, apabila ada nama yang sama maka akan diurutkan menggunakan salary
     first_name, salary;
+--aplikasi join
+select
+	E.employee_id,
+    E.first_name || ' ' || E.last_name,
+    E.department_id,
+    D.department_name,
+    E.job_id,
+    j.job_title
+from
+	employees E inner join departments D on E.department_id=D.department_id 
+    			inner join jobs j on E.job_id=j.job_id;  
+--penjelasan join
+ex : employees E 

@@ -11,7 +11,7 @@ select
 from
 	employees
 where 
-	salary between 3200.00 and 12000.00
+	salary > 3200.00 and salary < 12000.00
 order by
 	salary desc;
 --latihan 3
@@ -39,7 +39,9 @@ where
 select
 	distinct department_id
 from 
-	employees;
+	employees
+where 
+	department_id is not null;
 --latihan 7
 select
 	first_name || ' ' || last_name as nama_lengkap,
@@ -76,7 +78,7 @@ select
     case when commission_pct is null then 'Tidak ada komisi'
     else to_char(commission_pct,'999,999,999.99')
     end as "Mendapatkan Komisi",
-    case when commission_pct is not null then to_char(salary+commission_pct,'999,999,999.99')
+    case when commission_pct is not null then to_char(salary+commission_pct*salary,'999,999,999.99')
     else to_char(salary,'999,999,999.99')
     end as "Gaji Terima"
 from
@@ -96,4 +98,39 @@ select
 from
 	employees k inner join departments on departments.department_id=k.department_id 
     join employees man on k.manager_id = man.employee_id;
-
+--no 3
+select
+	d.department_id as dep_id,
+    d.department_name as dep_name,
+    sum(e.salary) as total_gaji
+from 
+	departments d inner join employees e on d.department_id = e.department_id
+group by
+	d.department_id
+order by
+	total_gaji desc;
+--no 4
+select 
+	salary*12 as gaji_setahun,
+    count(salary*12) as jumlah_karyawan
+from
+	employees
+where
+	commission_pct is not null
+group by
+	gaji_setahun
+order by
+	gaji_setahun desc;
+--no 5
+select
+	employee_id as "kode karyawan",
+    first_name || ' ' || last_name as "Nama Lengkap",
+    salary,
+    job_title,
+    email
+from 
+	employees e inner join jobs j on e.job_id=j.job_id
+where
+	salary >= (select max(salary) from employees where job_id='IT_PROG')
+order by
+	salary desc;
