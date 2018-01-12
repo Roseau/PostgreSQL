@@ -66,3 +66,34 @@ from
 	employees
 where
 	job_id not in('IT_PROG','SH_CLERK');
+--latihan part 2
+--no 1
+select
+	employee_id as "Kode Karyawan",
+	departments.department_name as "Nama Departemen",
+    first_name || ' ' || last_name as "Nama Lengkap",
+    salary as "Gaji Sebulan",
+    case when commission_pct is null then 'Tidak ada komisi'
+    else to_char(commission_pct,'999,999,999.99')
+    end as "Mendapatkan Komisi",
+    case when commission_pct is not null then to_char(salary+commission_pct,'999,999,999.99')
+    else to_char(salary,'999,999,999.99')
+    end as "Gaji Terima"
+from
+	employees inner join departments on departments.department_id=employees.department_id;
+--no 2
+select
+	k.employee_id as "Kode Karyawan",
+    k.first_name || ' ' || k.last_name as "Nama Karyawan",
+    departments.department_name as "Nama Bagian",
+    k.manager_id,
+    case 
+    	when k.manager_id is null 
+        	then 'Tidak memiliki manager'
+    	else
+        	man.first_name || ' ' || man.last_name
+    end as "Nama Manager"
+from
+	employees k inner join departments on departments.department_id=k.department_id 
+    join employees man on k.manager_id = man.employee_id;
+
