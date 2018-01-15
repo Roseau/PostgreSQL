@@ -144,3 +144,136 @@ INSERT INTO locations VALUES (6232, 'Cinunuk','40526','Kab. Bandung','Jawa Barat
                              (6233, 'Margaharayu Raya','40525','Kota Bandung','Jawa Barat','ID'),
                              (6230, 'Blok M','40620','Jakarta Selatan','DKI Jakarta','ID'),
                              (6220, 'Slipi','40521','Jakarta Utara','DKI Jakarta','ID');
+--no 3
+update 
+	employees 
+set 
+	commission_pct = 0.10 
+where
+	job_id = 'IT_PROG';
+--no 4
+create table karyawan_tdi (
+	kode_karyawan integer primary key,
+    nama_lengkap varchar(50),
+    alamat_rumah integer references locations(location_id),
+    alamat_domisili integer references locations(location_id),
+    jabatan varchar(10) references jobs(job_id),
+    bagian integer references departments(department_id)
+);
+--no 5
+insert into karyawan_tdi values (2,'Dimas Maryanto',6232,6230,'IT_PROG',60),
+								(3,'Hari Sapto Adi',6233,6233,'IT_PROG',60),
+                                (4,'Deni Sutisna',6220,6220,'IT_PROG',60),
+                                (5,'Arip Permana',6233,6233,'AD_PRES',90),
+                                (6,'Zara',6233,6233,'HR_REP',10);
+--no 6
+select
+	kdi.nama_lengkap as "Nama",
+    l.street_address || ', ' || l.city as alamat_rumah,
+    l.city || ', ' || l.street_address as alamat_domisili,
+	d.department_name as nama_divisi,
+	j.job_title as "sebagai"
+from
+	karyawan_tdi kdi inner join locations l on kdi.alamat_rumah = l.location_id 
+    				 inner join departments d on kdi.bagian = d.department_id
+                     inner join jobs j on kdi.jabatan = j.job_id;
+
+--latihan posregsql
+--no1 membuat fungsi jumlah 3 angka
+create or replace function hitung_3angka(p1 int, p2 int, p3 int)
+	returns numeric
+as $$
+begin
+	return p1 + p2 + p3;
+end; $$
+language 'plpgsql'
+--pemanggilan
+select * from hitung_3angka(10,25,100);
+--no2 create function get_employee untuk menampilkan employees yang diawali dengan huruf tertentu
+--ex : get_employee('A%','B%') akan menampilkan
+ create or replace function get_employee(firstname varchar(255), lastname varchar(255))
+	returns table( 
+    	first_name varchar(20),
+        last_name varchar(20)
+    )
+as $$
+begin
+	return query
+    	select e.first_name, e.last_name from employees e where e.first_name like firstname and e.last_name like lastname;
+end; $$
+language 'plpgsql'
+--pemanggilan
+select * from get_employee('A%', 'B%');
+--no3 create function get_employee untuk menampilkan gaji lebih besar / kecil dari nilai tertentu
+--ex : get_employee('lebih_kecil', 15000)
+create or replace function get_salary_employee(variabel varchar(255), gaji numeric)
+	returns table( 
+    	nama_lengkap varchar(255),
+        hasil_salary numeric
+    )
+as $$
+begin
+	if variabel='lebih_dari' then
+    	return query
+    	select (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary > gaji;
+     end if;
+     if variabel='kurang_dari' then
+     	return query
+    	select (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary < gaji;
+     end if;
+     if variabel='sama_dengan' then
+     	return query 
+    	select (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary = gaji;
+     end if;
+end; $$
+language 'plpgsql'
+--pemanggilan
+select * from get_salary_employee('lebih_dari',10000);
+select * from get_salary_employee('kurang_dari',10000);
+select * from get_salary_employee('sama_dengan',11000);
+--note : selain if, bisa juga menggunakan case dan when seperti berikut :
+create or replace function get_salary_employee(idemployee integer, variabel varchar(255), gaji numeric)
+	returns table(
+        id_employee integer,
+    	nama_lengkap varchar(255),
+        hasil_salary numeric
+    )
+as $$
+begin
+	case variabel
+		when 'lebih_dari' then
+    		return query
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary > gaji and e.employee_id=idemployee;
+     	when 'kurang_dari' then
+     		return query
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary < gaji and e.employee_id=idemployee;
+     	when 'sama_dengan' then
+     		return query 
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary = gaji and e.employee_id=idemployee;
+    end case;
+end; $$
+language 'plpgsql'
+--alternatif lain, menggunakan array untuk memanggil banyak ID sekaligus menggunakan array
+create or replace function get_salary_employee_alter(idemployee integer[], variabel varchar(255), gaji numeric)
+	returns table(
+        id_employee integer,
+    	nama_lengkap varchar(255),
+        hasil_salary numeric
+    )
+as $$
+begin
+	case variabel
+		when 'lebih_dari' then
+    		return query
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary > gaji and e.employee_id=any(idemployee);
+     	when 'kurang_dari' then
+     		return query
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary < gaji and e.employee_id=any(idemployee);
+     	when 'sama_dengan' then
+     		return query 
+    		select e.employee_id, (e.first_name || ' ' || e.last_name):: varchar(255), e.salary from employees e where e.salary = gaji and e.employee_id=any(idemployee);
+    end case;
+end; $$
+language 'plpgsql'
+--dipanggil dengan syntax sebagai berikut :
+select * from get_salary_employee_alter(array[100,101,102],'lebih_dari',5000);
