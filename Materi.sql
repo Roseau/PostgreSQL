@@ -121,4 +121,20 @@ begin
     return TotalGaji;
 end; $$
 language 'plpgsql'
----menggunakan if else dalam function
+---memasukkan data ke sebuah table
+insert into departments (department_id, department_name, location_id) values (1006, null, null);
+select * from departments where department_id in (1002,1005,1006);
+--selalu perhatikan attribut yang menjadi nilai dalam table, apakah dia bisa null? dan apakah memiliki
+--keterkaitan dengan table lain
+--update data table
+insert into departments (department_id, department_name, location_id) values (1006, null, null);
+select * from departments where department_id in (1002,1005,1006);
+select * from departments where department_id=100 --manager_id = 108, location_id = 1700
+update departments set department_name='keuangan', manager_id=108, location_id=1700 where department_id = 100;
+--membuat table
+create table master_mahasiswa(
+	nim bigint primary key unique not null,
+    nama character varying(50) not null,
+    jenis_kelamin character(1) not null,
+    tanggal_lahir date not null
+)
