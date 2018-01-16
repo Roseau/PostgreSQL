@@ -1,0 +1,1 @@
+insert into countries values ('ID','Indonesia',3)
