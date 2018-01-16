@@ -277,3 +277,64 @@ end; $$
 language 'plpgsql'
 --dipanggil dengan syntax sebagai berikut :
 select * from get_salary_employee_alter(array[100,101,102],'lebih_dari',5000);
+--contoh lain aplikasi Array
+create or replace function hitung_3angka_alter(p1 int, p2 int, opearator varchar(20))
+	returns numeric
+as $$
+begin
+	case opearator
+    	when 'tambah' then
+        	return p1 + p2;
+        when 'kurang' then
+        	return p1 - p2;
+        when 'kali' then
+        	return p1*p2;
+        when 'bagi' then
+        	return p1/p2;
+    end case;
+end; $$
+language 'plpgsql'
+--sehingga dipanggil dengan menguunakan syntax sebagai berikut :
+select hitung_3angka_alter(23,10,'tambah');
+--latihan extra
+create or replace function hitung_angka_dalam_arrayt(p1 int[], opearator varchar(20))
+	returns numeric
+as $$
+declare 
+	hasil int;
+begin
+	case opearator
+    	when 'tambah' then
+        hasil = 0;
+        for i in 1 .. array_upper(p1,1)
+        loop
+        	hasil :=  hasil + p1[i];
+        end loop;
+        return hasil;
+        
+        when 'kurang' then
+       	hasil = p1[1];
+        for i in 2 .. array_upper(p1,1)
+        	loop
+        		hasil := hasil - p1[i];
+        	end loop;
+        return hasil;
+        
+        when 'kali' then
+        hasil = 1;
+        for i in 1 .. array_upper(p1,1)
+        	loop
+            	hasil := hasil * p1[i];
+            end loop;
+        return hasil;
+        
+        when 'bagi' then
+        hasil = p1[1];
+        for i in 2 .. array_upper(p1,1)
+        loop
+        	hasil :=  hasil / p1[i];
+        end loop;
+        return hasil;
+    end case;
+end; $$
+language 'plpgsql'
