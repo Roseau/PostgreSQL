@@ -138,3 +138,4 @@ create table master_mahasiswa(
     jenis_kelamin character(1) not null,
     tanggal_lahir date not null
 )
+--memasukkan data kedalam 
