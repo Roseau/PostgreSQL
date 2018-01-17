@@ -170,14 +170,24 @@ insert into karyawan_tdi values (2,'Dimas Maryanto',6232,6230,'IT_PROG',60),
 select
 	kdi.nama_lengkap as "Nama",
     l.street_address || ', ' || l.city as alamat_rumah,
-    l.city || ', ' || l.street_address as alamat_domisili,
+    lo.city || ', ' || lo.street_address as alamat_domisili,
 	d.department_name as nama_divisi,
 	j.job_title as "sebagai"
 from
 	karyawan_tdi kdi inner join locations l on kdi.alamat_rumah = l.location_id 
+    				 inner join locations lo on kdi.alamat_domisili = lo.location_id
     				 inner join departments d on kdi.bagian = d.department_id
-                     inner join jobs j on kdi.jabatan = j.job_id;
-
+                     inner join jobs j on kdi.jabatan = j.job_id
+group by
+	kdi.nama_lengkap, 
+    l.street_address,
+    l.city,
+    lo.city,
+    lo.street_address,
+    d.department_name,
+    j.job_title
+order by
+	kdi.nama_lengkap;
 --latihan posregsql
 --no1 membuat fungsi jumlah 3 angka
 create or replace function hitung_3angka(p1 int, p2 int, p3 int)
